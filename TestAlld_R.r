@@ -4,7 +4,8 @@
 
 # d: dataframe
 # testtype: 'chisq.test', 't.test', 'kruskal.test'
-# toPrint: 'matrix' (all test result) for a matrix, 'association' (only test result with p-value <= 0.05) for string like "A - B : p-value_valor_under_or_equal_to_0.05"
+# toPrint: 'matrix' (all test result) for a matrix, 'association' (only test result with p-value <= 0.05)
+#   for string like "A - B : p-value_valor_under_or_equal_to_0.05"
 # extension: 'txt', 'csv', etc...
 # PATHset: 'path/in/which/save/your/file'
 # yates: yate's correction for chi-squared test, default: FALSE
