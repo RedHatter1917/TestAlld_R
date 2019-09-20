@@ -1,4 +1,4 @@
-# automates chi-squared test, t-student test and kruskal test for statistics
+# This method automates chi-squared test, t-student test and kruskal test for statistics
 # in a dataframe with factor and/or numeric variables
 # insert dataframe, wait the magic
 
