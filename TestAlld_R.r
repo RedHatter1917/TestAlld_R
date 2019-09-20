@@ -1,3 +1,7 @@
+# automates chi-squared test, t-student test and kruskal test for statistics
+# in a dataframe with factor and/or numeric variables
+# insert dataframe, wait the magic
+
 # d: dataframe
 # testtype: 'chisq.test', 't.test', 'kruskal.test'
 # toPrint: 'matrix' for a matrix, 'association' for string like "A - B : p-value_valor_under_or_equal_to_0.05"
