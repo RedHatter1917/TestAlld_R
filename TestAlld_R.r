@@ -16,7 +16,7 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     warning(paste(d,"is not a dataframe"))
     exit()
   }
-  if(dim(d)[1] == 0 || dim(d)[2] == 0){
+  if(dim(d)[1] <= 0 || dim(d)[2] <= 0){
     warning(paste(d,"is empty"))
     exit()
   }
