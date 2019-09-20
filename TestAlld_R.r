@@ -70,11 +70,11 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     association <- vector()
     association <- pSearch(m, testtype)
     print(association)
-    if(!is.null(extension) || !is.null(PATHset)) write.table(association, path, sep="\t")
+    if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
   }
   else if(!is.null(toPrint) && toPrint == 'matrix'){
     print(m)
-    if(!is.null(extension) || !is.null(PATHset)) write.table(association, path, sep="\t")
+    if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
   }
 }
 
