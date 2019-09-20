@@ -9,20 +9,20 @@
 # PATHset: 'path/in/which/save/your/file'
 # yates: yate's correction for chi-squared test, default: FALSE
 
-TestAll <- function(d, testtype, toPrint, extension, PATHset, yates = FALSE) {
+TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHset = NULL, yates = FALSE) {
   
   if(!is.data.frame(d)){
     warning(paste(d,"is not a dataframe"))
     exit()
   }
-  if(dim(d)[1] <= 0 || dim(d)[2] <= 0){
+  if(dim(d)[1] == 0 || dim(d)[2] == 0){
     warning(paste(d,"is empty"))
     exit()
   }
   
   library(xlsx)
   
-  if(testtype == 'chisq.test' || testtype == 't.test'){
+  if(!is.null(testtype) && (testtype == 'chisq.test' || testtype == 't.test')){
     
     if(testtype == 'chisq.test') is.filter <- sapply(d, is.factor)
     else is.filter <- sapply(d, is.numeric)
@@ -44,7 +44,7 @@ TestAll <- function(d, testtype, toPrint, extension, PATHset, yates = FALSE) {
     }
   }
   
-  else if(testtype == 'kruskal.test'){
+  else if(!is.null(testtype) && testtype == 'kruskal.test'){
     
     is.num <- sapply(d, is.numeric)
     d1 <- d[, is.num]
@@ -66,15 +66,15 @@ TestAll <- function(d, testtype, toPrint, extension, PATHset, yates = FALSE) {
   
   path <- paste(PATHset,toPrint,'_',testtype,'.',extension, sep="")
   
-  if(toPrint == 'association'){
+  if(!is.null(toPrint) && toPrint == 'association'){
     association <- vector()
     association <- pSearch(m, testtype)
     print(association)
-    write.table(association, path, sep="\t")
+    if(!is.null(extension) || !is.null(PATHset)) write.table(association, path, sep="\t")
   }
-  else if(toPrint == 'matrix'){
+  else if(!is.null(toPrint) && toPrint == 'matrix'){
     print(m)
-    write.table(m, path, sep="\t")
+    if(!is.null(extension) || !is.null(PATHset)) write.table(association, path, sep="\t")
   }
 }
 
@@ -88,7 +88,7 @@ pSearch <- function(m, testtype) {
       }
     }
   }
-  if(testtype != 'kruskal.test') association <- cleanVector(association)
+  if(!is.null(testtype) && testtype != 'kruskal.test') association <- cleanVector(association)
   return(sort(association))
 }
 
