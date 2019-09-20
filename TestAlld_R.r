@@ -1,8 +1,8 @@
 # d: dataframe
-# testtype: chisq.test, t.test, kruskal.test
-# toPrint: matrix for a matrix, association for string like "A - B : p-value_valor_under_or_equal_to_0.05"
-# extension: txt, csv, etc...
-# PATHset: path in which save your file
+# testtype: 'chisq.test', 't.test', 'kruskal.test'
+# toPrint: 'matrix' for a matrix, 'association' for string like "A - B : p-value_valor_under_or_equal_to_0.05"
+# extension: 'txt', 'csv', etc...
+# PATHset: 'path/in/which/save/your/file'
 # yates: yate's correction for chi-squared test, default: FALSE
 
 TestAll <- function(d, testtype, toPrint, extension, PATHset, yates = FALSE) {
@@ -11,7 +11,7 @@ TestAll <- function(d, testtype, toPrint, extension, PATHset, yates = FALSE) {
     warning(paste(d,"is not a dataframe"))
     exit()
   }
-  if(dim(d)[1] == 0 || dim(d)[2] == 0){
+  if(dim(d)[1] <= 0 || dim(d)[2] <= 0){
     warning(paste(d,"is empty"))
     exit()
   }
