@@ -4,8 +4,11 @@
 
 # d: dataframe
 # testtype: 'chisq.test', 't.test', 'kruskal.test'
-# toPrint: 'matrix' (all test result) for a matrix, 'association' (only test result with p-value <= 0.05)
-#   for string like "A - B : p-value_valor_under_or_equal_to_0.05"
+# toPrint:
+#   'matrix' (all test result) for a matrix,
+#   'association' (only test result with p-value <= 0.05) for string like "A - B : p-value_valor_under_or_equal_to_0.05"
+#   'cramer' (only test result with p-value <= 0.05) for string like "A - B : cramer_correlation"
+#   'pearson' (only test result with p-value <= 0.05) for string like "A - B : pearson_correlation"
 # extension: 'txt', 'csv', etc...
 # PATHset: 'path/in/which/save/your/file'
 # yates: yate's correction for chi-squared test, default: FALSE
@@ -16,12 +19,19 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     warning(paste(d,"is not a dataframe"))
     exit()
   }
-  if(dim(d)[1] <= 0 || dim(d)[2] <= 0){
+  if(dim(d)[1] == 0 || dim(d)[2] == 0){
     warning(paste(d,"is empty"))
     exit()
   }
+  if(!class(yates) == 'logical'){
+    warning(paste(yates,"is not boolean;
+                  accepted values: TRUE or FALSE"))
+    exit()
+  }
   
-  library(xlsx)
+  
+  library(xlsx); library(lsr)
+  
   
   if(!is.null(testtype) && (testtype == 'chisq.test' || testtype == 't.test')){
     
@@ -36,8 +46,9 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     
     for(c in seq(1, ncol(d1), 1)){
       for(r in seq(1, ncol(d1), 1)){
-        if(testtype == 'chisq.test')
+        if(testtype == 'chisq.test'){
           m[r,c] <- substr(chisq.test(d1[, c], d1[, r],correct = yates)$p.value, 0, 9)
+        }
         else if(testtype == 't.test'){
           m[r,c] <- substr(t.test(d1[, c], d1[, r])$p.value, 0, 9)
         }
@@ -62,30 +73,35 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
         m[r,c] <- substr(kruskal.test(d1[, c], d2[, r])$p.value, 0, 9)
       }
     }
-    
   }
   
   path <- paste(PATHset,toPrint,'_',testtype,'.',extension, sep="")
   
-  if(!is.null(toPrint) && toPrint == 'association'){
+  if(!is.null(toPrint) && (toPrint == 'association' || toPrint == 'cramer' || toPrint == 'pearson')){
     association <- vector()
-    association <- pSearch(m, testtype)
+    association <- pSearch(d1, m, testtype, toPrint)
     print(association)
     if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
   }
   else if(!is.null(toPrint) && toPrint == 'matrix'){
     print(m)
-    if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
+    if(!is.null(extension) && !is.null(PATHset)) write.table(m, path, sep="\t")
   }
 }
 
 
-pSearch <- function(m, testtype) {
+pSearch <- function(d, m, testtype, toPrint) {
+  
   association <- vector()
+  
   for(c in seq(1, ncol(m), 1)){
     for(r in seq(1, nrow(m), 1)){
       if(as.numeric(m[r,c] <= 0.05) && r != c){
-        association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",m[r,c]))
+        if(toPrint == 'association') association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",m[r,c]))
+        else if(toPrint == 'cramer')
+          association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",substr(cramersV(d[, c], d[, r]), 0, 9)))
+        else if(toPrint == 'pearson')
+          association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",substr(cor.test(d[, c], d[, r], method = "pearson")$estimate, 0, 9)))
       }
     }
   }
