@@ -1,20 +1,29 @@
-# This method automates chi-squared test (also with cramer correlation), t-student test (also with pearson correlation)
-# and kruskal test for statistics
+# This method automates chi-squared test, t-student test and kruskal test for statistics with them correlation force test
 # in a dataframe with factor and/or numeric variables
 # insert dataframe, wait the magic
-
+#
 # d: dataframe
+#
 # testtype: 'chisq.test', 't.test', 'kruskal.test'
-# toPrint:
-#   'matrix' (all test result) for a matrix,
-#   'association' (only test result with p-value <= 0.05) for string like "A - B : p-value_valor_under_or_equal_to_0.05"
-#   'cramer' (only test result with p-value <= 0.05) for string like "A - B : cramer_correlation"
-#   'pearson' (only test result with p-value <= 0.05) for string like "A - B : pearson_correlation"
+#
+# format:
+#   'matrix' square matrix
+#   'association' string in this format: "A - B : valor_under_or_equal_to_0.05"
+#
+# correlation:
+#   'p-value' for square matrix: all result; for association: only p-value <= 0.05
+#   'cramer' for square matrix: all result; for association: only cramer_correlation with p-value <= 0.05
+#            string like "A - B : cramer_correlation"
+#   'pearson' for square matrix: all result; for association: only pearson_correlation with p-value <= 0.05
+#             string like "A - B : pearson_correlation"
+#
 # extension: 'txt', 'csv', etc...
+#
 # PATHset: 'path/in/which/save/your/file'
+#
 # yates: yate's correction for chi-squared test, default: FALSE
 
-TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHset = NULL, yates = FALSE) {
+TestAll <- function(d, testtype, correlation = NULL, format = NULL, extension = NULL, PATHset = NULL, yates = FALSE) {
   
   if(!is.data.frame(d)){
     warning(paste(d,"is not a dataframe"))
@@ -29,7 +38,6 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
                   accepted values: TRUE or FALSE"))
     exit()
   }
-  
   
   library(xlsx); library(lsr)
   
@@ -47,12 +55,14 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     
     for(c in seq(1, ncol(d1), 1)){
       for(r in seq(1, ncol(d1), 1)){
-        if(testtype == 'chisq.test'){
+        if(testtype == 'chisq.test' && correlation == 'p-value')
           m[r,c] <- substr(chisq.test(d1[, c], d1[, r],correct = yates)$p.value, 0, 9)
-        }
-        else if(testtype == 't.test'){
+        else if(correlation == 'cramer')
+          m[r,c] <- substr(cramersV(d1[, c], d1[, r]), 0, 9)
+        else if(testtype == 't.test' && correlation == 'p-value')
           m[r,c] <- substr(t.test(d1[, c], d1[, r])$p.value, 0, 9)
-        }
+        else if(correlation == 'pearson')
+          m[r,c] <- substr(cor.test(d1[, c], d1[, r], method = "pearson")$estimate, 0, 9)
       }
     }
   }
@@ -76,32 +86,32 @@ TestAll <- function(d, testtype = NULL, toPrint = NULL, extension = NULL, PATHse
     }
   }
   
-  path <- paste(PATHset,toPrint,'_',testtype,'.',extension, sep="")
+  path <- paste(PATHset,format,'_',testtype,'_',correlation,'.',extension, sep="")
   
-  if(!is.null(toPrint) && (toPrint == 'association' || toPrint == 'cramer' || toPrint == 'pearson')){
+  if(!is.null(format) && (format == 'association')){
     association <- vector()
-    association <- pSearch(d1, m, testtype, toPrint)
+    association <- pSearch(d1, m, testtype, correlation, format)
     print(association)
     if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
   }
-  else if(!is.null(toPrint) && toPrint == 'matrix'){
+  else if(!is.null(format) && format == 'matrix'){
     print(m)
-    if(!is.null(extension) && !is.null(PATHset)) write.table(m, path, sep="\t")
+    if(!is.null(extension) && !is.null(PATHset)) write.table(m, path, sep="\t", row.names=TRUE)
   }
 }
 
 
-pSearch <- function(d, m, testtype, toPrint) {
+pSearch <- function(d, m, testtype, correlation ,format) {
   
   association <- vector()
   
   for(c in seq(1, ncol(m), 1)){
     for(r in seq(1, nrow(m), 1)){
       if(as.numeric(m[r,c] <= 0.05) && r != c){
-        if(toPrint == 'association') association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",m[r,c]))
-        else if(toPrint == 'cramer')
+        if(format == 'association' && correlation == 'p-value') association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",m[r,c]))
+        else if(correlation == 'cramer')
           association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",substr(cramersV(d[, c], d[, r]), 0, 9)))
-        else if(toPrint == 'pearson')
+        else if(correlation == 'pearson')
           association <- append(association,paste(colnames(m)[c],"-",rownames(m)[r],":",substr(cor.test(d[, c], d[, r], method = "pearson")$estimate, 0, 9)))
       }
     }
