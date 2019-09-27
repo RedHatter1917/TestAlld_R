@@ -6,7 +6,7 @@
 #
 # testtype: 'chisq.test', 't.test', 'kruskal.test'
 #
-# format:
+# out format:
 #   'matrix' square matrix
 #   'association' string in this format: "A - B : p-value/cramer/pearson_only_if_p-value_under_or_equal_0.05"
 #
@@ -17,9 +17,9 @@
 #   'pearson' for square matrix: all result; for association: only pearson_correlation with p-value <= 0.05
 #             string like "A - B : pearson_correlation"
 #
-# extension: 'txt', 'csv', etc...
+# out file extension: 'txt', 'csv', etc...
 #
-# PATHset: 'path/in/which/save/your/file'
+# out PATHset: 'path/in/which/save/your/file'
 #
 # yates: yate's correction for chi-squared test, default: FALSE
 
