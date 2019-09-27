@@ -8,7 +8,7 @@
 #
 # format:
 #   'matrix' square matrix
-#   'association' string in this format: "A - B : valor_under_or_equal_to_0.05"
+#   'association' string in this format: "A - B : p-value/cramer/pearson_only_if_p-value_under_or_equal_0.05"
 #
 # correlation:
 #   'p-value' for square matrix: all result; for association: only p-value <= 0.05
