@@ -1,4 +1,4 @@
-# ADVICE: kruskal.test hasn't any correlation test for now
+# ADVICE: kruskal.test has only "p-value" correlation for now
 #
 # This method automates chi-squared test, t-student test and kruskal test for statistics with them correlation force test
 # in a dataframe with factor and/or numeric variables
