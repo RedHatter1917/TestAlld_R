@@ -1,5 +1,3 @@
-# ADVICE: kruskal.test has only "p-value" correlation for now
-#
 # This method automates chi-squared test, t-student test and kruskal test for statistics with them correlation force test
 # in a dataframe with factor and/or numeric variables
 # insert dataframe, wait the magic
@@ -25,7 +23,7 @@
 #
 # yates: yate's correction for chi-squared test, default: FALSE
 
-TestAll <- function(d, testtype, correlation = NULL, format = NULL, extension = NULL, PATHset = NULL, yates = FALSE) {
+TestAll <- function(d, testtype, correlation, format, extension = NULL, PATHset = NULL, yates = FALSE) {
   
   if(!is.data.frame(d)){
     warning(paste(d,"is not a dataframe"))
@@ -41,7 +39,7 @@ TestAll <- function(d, testtype, correlation = NULL, format = NULL, extension = 
     exit()
   }
   
-  library(xlsx); library(lsr)
+  library(xlsx); library(lsr); options(scipen = 999)
   
   
   if(!is.null(testtype) && (testtype == 'chisq.test' || testtype == 't.test')){
@@ -69,36 +67,54 @@ TestAll <- function(d, testtype, correlation = NULL, format = NULL, extension = 
     }
   }
   
-  else if(!is.null(testtype) && testtype == 'kruskal.test'){
-    
-    is.num <- sapply(d, is.numeric)
-    d1 <- d[, is.num]
-    
-    is.fact <- sapply(d, is.factor)
-    d2 <- d[, is.fact]
-    
-    m <- matrix(data = NA, nrow = ncol(d2), ncol = ncol(d1))
-    rownames(m) <- colnames(d2)
-    colnames(m) <- colnames(d1)
-    
-    for(c in seq(1, ncol(d1), 1)){
-      for(r in seq(1, ncol(d2), 1)){
-        m[r,c] <- substr(kruskal.test(d1[, c], d2[, r])$p.value, 0, 9)
+  else{
+    if(!is.null(testtype) && testtype == 'kruskal.test'){
+      
+      is.num <- sapply(d, is.numeric)
+      d1 <- d[, is.num]
+      
+      is.fact <- sapply(d, is.factor)
+      d2 <- d[, is.fact]
+      
+      m <- matrix(data = NA, nrow = ncol(d2), ncol = ncol(d1))
+      rownames(m) <- colnames(d2)
+      colnames(m) <- colnames(d1)
+      
+      for(c in seq(1, ncol(d1), 1)){
+        for(r in seq(1, ncol(d2), 1)){
+          m[r,c] <- substr(kruskal.test(d1[, c], d2[, r])$p.value, 0, 9)
+        }
       }
     }
   }
   
-  path <- paste(PATHset,format,'_',testtype,'_',correlation,'.',extension, sep="")
-  
-  if(!is.null(format) && (format == 'association')){
-    association <- vector()
-    association <- pSearch(d1, m, testtype, correlation, format)
-    print(association)
-    if(!is.null(extension) && !is.null(PATHset)) write.table(association, path, sep="\t")
+  if(!is.null(format)){
+    if(format == 'association'){
+      association <- vector()
+      association <- pSearch(d1, m, testtype, correlation, format)
+      print(association)
+    }
+    else{
+      if(format == 'matrix')
+        print(m)
+    }
   }
-  else if(!is.null(format) && format == 'matrix'){
-    print(m)
-    if(!is.null(extension) && !is.null(PATHset)) write.table(m, path, sep="\t", row.names=TRUE)
+  
+  if(!is.null(extension) && !is.null(PATHset)){
+    
+    file <- paste(0,'_',format,'_',testtype,'_',correlation,'.',extension, sep="")
+    path <- paste(PATHset,file, sep="")
+    
+    while(file_test("-f", path)){
+      i <- gsub('([0-9]+).*','\\1',file)
+      i <- as.numeric(i)
+      i <- i+1
+      file <- paste(i,'_',format,'_',testtype,'_',correlation,'.',extension, sep="")
+      path <- paste(PATHset,file, sep="")
+    }
+    
+    if(format == 'association') write.table(association, path, sep="\t")
+    else if(format == 'matrix') write.table(m, path, sep="\t", row.names=TRUE)
   }
 }
 
